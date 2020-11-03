@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
             bf = cv2.bitwise_or(img_back, img_front)
             lr = cv2.bitwise_or(img_left, img_right)
-            image = np.where(lr, lr, bf)
+            image = (np.where(lr, lr, bf) + np.where(bf, bf, lr)) // 2
 
             video.write(image)
 
