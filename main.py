@@ -1,41 +1,14 @@
 import cv2
-
 from camera import Camera
-from camera_param import *
 
 if __name__ == "__main__":
-    cam_back = Camera(BACK, ORIGINAL_RESOLUTION, TARGET_RESOLUTION)
-    cam_front = Camera(FRONT, ORIGINAL_RESOLUTION, TARGET_RESOLUTION)
-    cam_left = Camera(LEFT, ORIGINAL_RESOLUTION, TARGET_RESOLUTION)
-    cam_right = Camera(RIGHT, ORIGINAL_RESOLUTION, TARGET_RESOLUTION)
+    from camera_params.bus import *
 
-    cap = cv2.VideoCapture("input/test.mp4")
-    if not cap.isOpened():
-        print("Cannot open camera")
-        exit()
+    cam = Camera(RIGHT, ORIGINAL_RESOLUTION, TARGET_RESOLUTION)
+    image = cv2.imread("input/cam3.jpg")
 
-    video = cv2.VideoWriter("output/test.mp4", cv2.VideoWriter_fourcc(*"mp4v"), 5, (1000, 1000))
+    image1 = cam(image)
 
-    index = 0
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-        else:
-            index += 1
-
-        if index % 25 == 0:
-            print(index)
-            img_back = cam_back(frame[:ORIGINAL_RESOLUTION[0] // 2, ORIGINAL_RESOLUTION[1] // 2:, :])
-            img_front = cam_front(frame[:ORIGINAL_RESOLUTION[0] // 2, :ORIGINAL_RESOLUTION[1] // 2, :])
-            img_left = cam_left(frame[ORIGINAL_RESOLUTION[0] // 2:, :ORIGINAL_RESOLUTION[1] // 2, :])
-            img_right = cam_right(frame[ORIGINAL_RESOLUTION[0] // 2:, ORIGINAL_RESOLUTION[1] // 2:, :])
-
-            bf = cv2.bitwise_or(img_back, img_front)
-            lr = cv2.bitwise_or(img_left, img_right)
-            image = (np.where(lr, lr, bf) + np.where(bf, bf, lr)) // 2
-
-            video.write(image)
-
-    cap.release()
-    video.release()
+    cam.fine_tine(x=0.1, y=0.1, z=0.1, pitch=0.1, yaw=0.1)
+    image2 = cam(image)
+    cv2.imwrite("output/test.jpg", np.concatenate((image1, image2), axis=1))

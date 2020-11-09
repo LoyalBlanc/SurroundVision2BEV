@@ -10,7 +10,7 @@ BACK = {
     #                [-2.00553632e-18, -2.14043333e-03, 1.00000000e+00], ]),
     "src": np.float32([[906, 533], [316, 533], [419, 494], [667, 494]]),
     "tag": np.float32([[285, 815], [680, 822], [695, 910], [280, 908]]),
-    "limit": np.concatenate((np.zeros([720, 1000, 3]).astype(np.bool), np.ones([280, 1000, 3]).astype(np.bool)), 0)
+    "limit": np.concatenate((np.zeros([800, 1000, 3]).astype(np.bool), np.ones([200, 1000, 3]).astype(np.bool)), 0)
 }
 
 FRONT = {
@@ -23,7 +23,7 @@ FRONT = {
     #                [1.19309330e-18, -2.08534781e-03, 1.00000000e+00], ]),
     "src": np.float32([[422, 489], [543, 489], [608, 503], [308, 503]]),
     "tag": np.float32([[270, 50], [695, 55], [695, 295], [272, 300]]),
-    "limit": np.concatenate((np.ones([440, 1000, 3]).astype(np.bool), np.zeros([560, 1000, 3]).astype(np.bool)), 0)
+    "limit": np.concatenate((np.ones([400, 1000, 3]).astype(np.bool), np.zeros([600, 1000, 3]).astype(np.bool)), 0)
 }
 
 LEFT = {
@@ -36,7 +36,7 @@ LEFT = {
     #                [-1.88971561e-05, -2.15106128e-03, 1.00000000e+00], ]),
     "src": np.float32([[620, 487], [884, 548], [500, 548], [500, 487]]),
     "tag": np.float32([[295, 298], [470, 300], [470, 555], [288, 561]]),
-    "limit": np.concatenate((np.ones([1000, 550, 3]).astype(np.bool), np.zeros([1000, 450, 3]).astype(np.bool)), 1)
+    "limit": np.concatenate((np.ones([1000, 480, 3]).astype(np.bool), np.zeros([1000, 520, 3]).astype(np.bool)), 1)
 }
 
 RIGHT = {
@@ -49,7 +49,7 @@ RIGHT = {
     #                [-1.85976454e-05, -2.13111305e-03, 1.00000000e+00], ]),
     "src": np.float32([[120, 548], [312, 506], [500, 510], [500, 548]]),
     "tag": np.float32([[632, 275], [705, 275], [698, 560], [645, 560]]),
-    "limit": np.concatenate((np.zeros([1000, 570, 3]).astype(np.bool), np.ones([1000, 430, 3]).astype(np.bool)), 1)
+    "limit": np.concatenate((np.zeros([1000, 667, 3]).astype(np.bool), np.ones([1000, 333, 3]).astype(np.bool)), 1)
 }
 
 ORIGINAL_RESOLUTION = (1080, 1920)
