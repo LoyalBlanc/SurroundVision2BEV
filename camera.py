@@ -10,17 +10,15 @@ class Camera(object):
         self.original_resolution = original_resolution
         self.target_resolution = target_resolution
 
-        self.map = self.calculate_rectify(self.camera_matrix, self.dist_coefficient, self.original_resolution)
+        self.map = self.calculate_rectify()
         self.warp = self.calculate_homogeneous()
 
-    @staticmethod
-    def calculate_rectify(camera_matrix, dist_coefficient, original_resolution):
-        camera_target = np.array([[100., 0., original_resolution[0] / 2.],
-                                  [0., 100., original_resolution[1] / 2.],
-                                  [0., 0., 1.]])
-
-        return cv2.fisheye.initUndistortRectifyMap(camera_matrix, dist_coefficient, np.eye(3),
-                                                   camera_target, original_resolution, cv2.CV_32F)
+    def calculate_rectify(self):
+        # camera_target = np.matrix([[50., 0., self.original_resolution[0] / 2.],
+        #                            [0., 50., self.original_resolution[1] / 2.],
+        #                            [0., 0., 1.]])
+        return cv2.fisheye.initUndistortRectifyMap(self.camera_matrix, self.dist_coefficient, np.eye(3),
+                                                   self.camera_matrix, self.original_resolution, cv2.CV_16SC2)
 
     def calculate_homogeneous(self):
         rotation = self.transform[:3, :3]
@@ -31,7 +29,7 @@ class Camera(object):
 
     def __call__(self, img):
         img = cv2.remap(img, self.map[0], self.map[1], cv2.INTER_LINEAR)
-        img = cv2.warpPerspective(img, self.warp, self.target_resolution)
+        # img = cv2.warpPerspective(img, self.warp, self.target_resolution)
         return img
 
     def fine_tine(self, x=0., y=0., z=0., roll=0., pitch=0., yaw=0., clear_mode=True):
