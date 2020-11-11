@@ -27,7 +27,9 @@ class Camera(object):
 
     def calculate_rectify(self):
         camera_target = np.array(self.camera_matrix)
+        camera_target[0][0] = camera_target[0][0] / 2
         camera_target[0][2] = self.original_resolution[0] / 2
+        camera_target[1][1] = camera_target[1][1] / 2
         camera_target[1][2] = self.original_resolution[1] / 2
         return cv2.fisheye.initUndistortRectifyMap(self.camera_matrix, self.dist_coefficient, np.eye(3),
                                                    camera_target, self.original_resolution, cv2.CV_32F)
