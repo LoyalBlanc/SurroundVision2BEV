@@ -2,6 +2,49 @@ import cv2
 import numpy as np
 
 
+class FineTuningParam(object):
+    def __init__(self):
+        self.param = {
+            'x': [0, [97, 100]],
+            'y': [0, [119, 115]],
+            'z': [0, [113, 101]],
+            'roll': [0, [107, 105]],
+            'pitch': [0, [108, 106]],
+            'yaw': [0, [117, 111]],
+        }
+        self.step = [0.1, [122, 120]]
+
+    def update(self, key):
+        for _, value in self.param.items():
+            if key in value[1]:
+                value[0] += -self.step[0] if key == value[1][0] else self.step[0]
+                break
+
+        if key in self.step[1]:
+            self.step[0] *= 0.1 if key == self.step[1][0] else 10
+
+        roll_rotation = np.matrix([[1, 0, 0],
+                                   [0, np.cos(self.param['roll'][0]), -np.sin(self.param['roll'][0])],
+                                   [0, np.sin(self.param['roll'][0]), np.cos(self.param['roll'][0])]])
+        pitch_rotation = np.matrix([[np.cos(self.param['pitch'][0]), 0, -np.sin(self.param['pitch'][0])],
+                                    [0, 1, 0],
+                                    [np.sin(self.param['pitch'][0]), 0, np.cos(self.param['pitch'][0])]])
+        yaw_rotation = np.matrix([[np.cos(self.param['yaw'][0]), -np.sin(self.param['yaw'][0]), 0],
+                                  [np.sin(self.param['yaw'][0]), np.cos(self.param['yaw'][0]), 0],
+                                  [0, 0, 1]])
+
+        rotation = roll_rotation * pitch_rotation * yaw_rotation
+        translation = np.matrix([[self.param['x'][0]], [self.param['y'][0]], [self.param['z'][0]]])
+        new_transform = np.concatenate((np.concatenate((rotation, translation), axis=1),
+                                        np.matrix([0, 0, 0, 1])), axis=0)
+
+        return new_transform
+
+    def reset(self):
+        for _, value in self.param.items():
+            value[0] = 0
+
+
 class Camera(object):
     def __init__(self, camera_param, original_resolution, target_resolution):
         """
@@ -21,6 +64,8 @@ class Camera(object):
 
         self.map = self.calculate_rectify()
         self.warp = self.calculate_homogeneous()
+
+        self.fine_tining_param = FineTuningParam()
 
     def __call__(self, img):
         return self.warp_perspective(self.warp_distort(img))
@@ -47,70 +92,11 @@ class Camera(object):
     def warp_perspective(self, img):
         return cv2.warpPerspective(img, self.warp, self.target_resolution)
 
-    def fine_tine_perspective(self, x=0., y=0., z=0., roll=0., pitch=0., yaw=0., clear_mode=True):
-        roll_rotation = np.matrix([[1, 0, 0],
-                                   [0, np.cos(roll), -np.sin(roll)],
-                                   [0, np.sin(roll), np.cos(roll)]])
-        pitch_rotation = np.matrix([[np.cos(pitch), 0, -np.sin(pitch)],
-                                    [0, 1, 0],
-                                    [np.sin(pitch), 0, np.cos(pitch)]])
-        yaw_rotation = np.matrix([[np.cos(yaw), -np.sin(yaw), 0],
-                                  [np.sin(yaw), np.cos(yaw), 0],
-                                  [0, 0, 1]])
-
-        rotation = (roll_rotation * pitch_rotation * yaw_rotation)
-        translation = np.matrix([[x], [y], [z]])
-        new_transform = np.concatenate((np.concatenate((rotation, translation), axis=1),
-                                        np.matrix([0, 0, 0, 1])), axis=0)
+    def fine_tining(self, img, key, clear_mode=False):
+        new_transform = self.fine_tining_param.update(key)
+        if not clear_mode:
+            self.fine_tining_param.reset()
 
         self.transform = new_transform if clear_mode else new_transform @ self.transform
         self.warp = self.calculate_homogeneous()
-
-    def fine_tining(self, img):
-        x = 0
-        y = 0
-        z = 1
-        roll = 0
-        pitch = 0
-        yaw = 0
-        step = 0.1
-        while True:
-            self.fine_tine_perspective(x, y, z, roll, pitch, yaw, True)
-            cv2.imshow("fine_tining", cv2.resize(self(img), self.target_resolution))
-            key = cv2.waitKey(0)
-            if key == 27:
-                break
-            elif key == 119:
-                y -= step
-            elif key == 115:
-                y += step
-            elif key == 97:
-                x -= step
-            elif key == 100:
-                x += step
-            elif key == 113:
-                z -= step
-            elif key == 101:
-                z += step
-            elif key == 106:
-                pitch += step
-            elif key == 108:
-                pitch -= step
-            elif key == 105:
-                roll += step
-            elif key == 107:
-                roll -= step
-            elif key == 117:
-                yaw -= step
-            elif key == 111:
-                yaw += step
-            elif key == 122:
-                step /= 10
-            elif key == 120:
-                step *= 10
-            else:
-                print(key)
-        cv2.destroyAllWindows()
-        with open('output/warp_perspective.txt', 'a+') as f:
-            script = f'"T": {self.transform}\n'
-            f.write(str(script))
+        return self(img)
