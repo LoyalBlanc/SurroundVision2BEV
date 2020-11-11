@@ -65,3 +65,52 @@ class Camera(object):
 
         self.transform = new_transform if clear_mode else new_transform @ self.transform
         self.warp = self.calculate_homogeneous()
+
+    def fine_tining(self, img):
+        x = 0
+        y = 0
+        z = 1
+        roll = 0
+        pitch = 0
+        yaw = 0
+        step = 0.1
+        while True:
+            self.fine_tine_perspective(x, y, z, roll, pitch, yaw, True)
+            cv2.imshow("fine_tining", cv2.resize(self(img), self.target_resolution))
+            key = cv2.waitKey(0)
+            if key == 27:
+                break
+            elif key == 119:
+                y -= step
+            elif key == 115:
+                y += step
+            elif key == 97:
+                x -= step
+            elif key == 100:
+                x += step
+            elif key == 113:
+                z -= step
+            elif key == 101:
+                z += step
+            elif key == 106:
+                pitch += step
+            elif key == 108:
+                pitch -= step
+            elif key == 105:
+                roll += step
+            elif key == 107:
+                roll -= step
+            elif key == 117:
+                yaw -= step
+            elif key == 111:
+                yaw += step
+            elif key == 122:
+                step /= 10
+            elif key == 120:
+                step *= 10
+            else:
+                print(key)
+        cv2.destroyAllWindows()
+        with open('output/warp_perspective.txt', 'a+') as f:
+            script = f'"T": {self.transform}\n'
+            f.write(str(script))
