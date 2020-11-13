@@ -91,11 +91,12 @@ class DataT(object):
         self.ok, self.corners = cv2.findChessboardCorners(
             self.raw_frame, cfgs.CHESS_BOARD_SIZE(),
             flags=cv2.CALIB_CB_ADAPTIVE_THRESH | cv2.CALIB_CB_NORMALIZE_IMAGE | cv2.CALIB_CB_FAST_CHECK)
-        if self.ok:
-            # subpix
-            gray = cv2.cvtColor(self.raw_frame, cv2.COLOR_BGR2GRAY)
-            self.corners = cv2.cornerSubPix(gray, self.corners, (11, 11), (-1, -1),
-                                            (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 0.1))
+        if not self.ok:
+            return
+        # subpix
+        gray = cv2.cvtColor(self.raw_frame, cv2.COLOR_BGR2GRAY)
+        self.corners = cv2.cornerSubPix(gray, self.corners, (11, 11), (-1, -1),
+                                        (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 0.1))
 
 
 class HistoryT(object):
@@ -110,9 +111,10 @@ class HistoryT(object):
         self.updated = True
 
     def removei(self, i):
-        if 0 <= i < len(self):
-            del self.corners[i]
-            self.updated = True
+        if not 0 <= i < len(self):
+            return
+        del self.corners[i]
+        self.updated = True
 
     def __len__(self):
         return len(self.corners)
