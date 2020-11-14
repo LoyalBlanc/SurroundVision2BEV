@@ -46,7 +46,7 @@ class FineTuningParam(object):
 
 
 class Camera(object):
-    def __init__(self, camera_param, original_resolution, target_resolution):
+    def __init__(self, camera_param, original_resolution, target_resolution, target_co=1):
         """
         :param camera_param: BACK = {
             "K": np.matrix 3x3,
@@ -62,22 +62,29 @@ class Camera(object):
         self.original_resolution = original_resolution
         self.target_resolution = target_resolution
 
-        self.map = self.calculate_rectify()
-        self.warp = self.calculate_homogeneous()
+        self.target_co = target_co
 
+        self.warp = self.calculate_homogeneous()
+        self.map = self.calculate_rectify()
+
+        self.rectify_x = cv2.warpPerspective(self.map[0], self.warp, self.target_resolution)
+        self.rectify_y = cv2.warpPerspective(self.map[1], self.warp, self.target_resolution)
         self.fine_tining_param = FineTuningParam()
 
     def __call__(self, img):
-        return self.warp_perspective(self.warp_distort(img))
+        return cv2.remap(img, self.rectify_x, self.rectify_y, cv2.INTER_LINEAR)
 
     def calculate_rectify(self):
         camera_target = np.array(self.camera_matrix)
         camera_target[0][0] = camera_target[0][0] / 2
-        camera_target[0][2] = self.original_resolution[0] / 2
+        camera_target[0][2] = self.original_resolution[0] * self.target_co / 2
         camera_target[1][1] = camera_target[1][1] / 2
-        camera_target[1][2] = self.original_resolution[1] / 2
-        return cv2.fisheye.initUndistortRectifyMap(self.camera_matrix, self.dist_coefficient, np.eye(3),
-                                                   camera_target, self.original_resolution, cv2.CV_32F)
+        camera_target[1][2] = self.original_resolution[1] * self.target_co / 2
+        target_size = (int(self.original_resolution[0] * self.target_co),
+                       int(self.original_resolution[1] * self.target_co))
+        return cv2.fisheye.initUndistortRectifyMap(
+            self.camera_matrix, self.dist_coefficient, np.eye(3),
+            camera_target, target_size, cv2.CV_32F)
 
     def warp_distort(self, img):
         return cv2.remap(img, self.map[0], self.map[1], cv2.INTER_LINEAR)
@@ -99,4 +106,6 @@ class Camera(object):
 
         self.transform = new_transform if clear_mode else new_transform @ self.transform
         self.warp = self.calculate_homogeneous()
+        self.rectify_x = cv2.warpPerspective(self.map[0], self.warp, self.target_resolution)
+        self.rectify_y = cv2.warpPerspective(self.map[1], self.warp, self.target_resolution)
         return self(img)
