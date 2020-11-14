@@ -48,11 +48,9 @@ class FineTuningParam(object):
 class Camera(object):
     def __init__(self, camera_param, original_resolution, target_resolution, target_co=1):
         """
-        :param camera_param: BACK = {
-            "K": np.matrix 3x3,
-            "D": np.matrix 1x4,
-            "T": np.matrix 4x4
-            }
+        :param camera_param: {  "K": np.matrix 3x3,
+                                "D": np.matrix 1x4,
+                                "T": np.matrix 4x4,   }
         :param original_resolution: tuple(int, int)
         :param target_resolution: tuple(int, int)
         """
