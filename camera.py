@@ -5,19 +5,19 @@ import numpy as np
 class FineTuningParam(object):
     def __init__(self):
         self.param = {
-            'x': [0, [97, 100]],
-            'y': [0, [119, 115]],
-            'z': [0, [113, 101]],
-            'roll': [0, [107, 105]],
-            'pitch': [0, [108, 106]],
-            'yaw': [0, [117, 111]],
+            'x': [0, [97, 100], 10],
+            'y': [0, [119, 115], 10],
+            'z': [0, [113, 101], 10],
+            'roll': [0, [107, 105], 1],
+            'pitch': [0, [108, 106], 1],
+            'yaw': [0, [117, 111], 1],
         }
         self.step = [0.1, [122, 120]]
 
     def update(self, key):
         for _, value in self.param.items():
             if key in value[1]:
-                value[0] += -self.step[0] if key == value[1][0] else self.step[0]
+                value[0] += (-1 if key == value[1][0] else 1) * self.step[0] * value[-1]
                 break
 
         if key in self.step[1]:
@@ -74,9 +74,9 @@ class Camera(object):
 
     def calculate_rectify(self):
         camera_target = np.array(self.camera_matrix)
-        camera_target[0][0] = camera_target[0][0] / 2
+        camera_target[0][0] = camera_target[0][0] / 4
         camera_target[0][2] = self.original_resolution[0] * self.target_co / 2
-        camera_target[1][1] = camera_target[1][1] / 2
+        camera_target[1][1] = camera_target[1][1] / 4
         camera_target[1][2] = self.original_resolution[1] * self.target_co / 2
         target_size = (int(self.original_resolution[0] * self.target_co),
                        int(self.original_resolution[1] * self.target_co))
@@ -91,13 +91,13 @@ class Camera(object):
         rotation = self.transform[:3, :3]
         translation = self.transform[:3, 3:4]
         n = rotation.I @ np.matrix([[0], [0], [-1.0]])
-        d = 1.5 - translation.I @ np.matrix([[0], [0], [-1.0]])
+        d = 1. - translation.I @ np.matrix([[0], [0], [-1.0]])
         return self.camera_matrix @ (rotation - translation @ n.T / d) @ self.camera_matrix.I
 
     def warp_perspective(self, img):
         return cv2.warpPerspective(img, self.warp, self.target_resolution)
 
-    def fine_tining(self, img, key, clear_mode=False):
+    def fine_tining(self, key, clear_mode=False):
         new_transform = self.fine_tining_param.update(key)
         if not clear_mode:
             self.fine_tining_param.reset()
@@ -106,4 +106,4 @@ class Camera(object):
         self.warp = self.calculate_homogeneous()
         self.rectify_x = cv2.warpPerspective(self.map[0], self.warp, self.target_resolution)
         self.rectify_y = cv2.warpPerspective(self.map[1], self.warp, self.target_resolution)
-        return self(img)
+        # return self(img)
