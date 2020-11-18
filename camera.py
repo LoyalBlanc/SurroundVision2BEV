@@ -74,9 +74,9 @@ class Camera(object):
 
     def calculate_rectify(self):
         camera_target = np.array(self.camera_matrix)
-        camera_target[0][0] = camera_target[0][0] / 4
+        camera_target[0][0] = camera_target[0][0] / 2
         camera_target[0][2] = self.original_resolution[0] * self.target_co / 2
-        camera_target[1][1] = camera_target[1][1] / 4
+        camera_target[1][1] = camera_target[1][1] / 2
         camera_target[1][2] = self.original_resolution[1] * self.target_co / 2
         target_size = (int(self.original_resolution[0] * self.target_co),
                        int(self.original_resolution[1] * self.target_co))
