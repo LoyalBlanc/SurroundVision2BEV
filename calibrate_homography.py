@@ -1,3 +1,5 @@
+import os
+
 import cv2
 import numpy as np
 
@@ -139,5 +141,6 @@ cv2.imshow("image", img_res)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
+os.makedirs("./output/", exist_ok=True)
 with open('output/warp_homography.txt', 'w+') as f:
     f.write(str(script))

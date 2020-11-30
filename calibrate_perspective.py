@@ -1,3 +1,5 @@
+import os
+
 import cv2
 import numpy as np
 
@@ -100,6 +102,7 @@ ORIGINAL_RESOLUTION = {ORIGINAL_RESOLUTION}
 TARGET_RESOLUTION = {TARGET_RESOLUTION}
 """
 
+os.makedirs("./output/", exist_ok=True)
 with open('output/warp_perspective.txt', 'w+') as f:
     f.write(str(script))
 cv2.imwrite("output/result.jpg", img_res)
