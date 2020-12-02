@@ -5,11 +5,11 @@ import numpy as np
 from time import time
 
 from camera import Camera
-from camera_params.tiev_plus import BACK, FRONT, LEFT, RIGHT, ORIGINAL_RESOLUTION, TARGET_RESOLUTION
+from camera_params.bus import BACK, FRONT, LEFT, RIGHT, ORIGINAL_RESOLUTION, TARGET_RESOLUTION
 
 os.makedirs("./output/", exist_ok=True)
-C_range = ('back', 'front', 'left', 'right')
-cap_list = [cv2.VideoCapture(f"/dev/cam_{name}") for name in C_range]
+C_range = ('0', '2', '4', '6')
+cap_list = [cv2.VideoCapture(f"/dev/video{name}") for name in C_range]
 cam_list = [
     Camera(BACK, ORIGINAL_RESOLUTION, TARGET_RESOLUTION),
     Camera(FRONT, ORIGINAL_RESOLUTION, TARGET_RESOLUTION),

@@ -29,7 +29,7 @@ def un_dist(cam, img):
     return cv2.remap(img, map1, map2, cv2.INTER_LINEAR)
 
 
-img_name = "347"
+img_name = "3"
 script = """\"\"\"
 相机参数：
 视频流按CAMERA_ID顺序读取 分别为 Back, Front, Left, Right (字母序)
@@ -41,7 +41,7 @@ script = """\"\"\"
 import numpy as np\n
 """
 # BACK
-undist_img = un_dist(BACK, cv2.imread(f"./input/0_{img_name}.jpg"))
+undist_img = un_dist(BACK, cv2.imread(f"./input/4_{img_name}.jpg"))
 bb = np.mean(undist_img)
 src_pts = np.array([[494, 364], [156, 370], [250, 302], [411, 295]])
 dst_pts = np.array([[460, 678], [630, 680], [622, 738], [452, 742]])
@@ -63,7 +63,7 @@ BACK = {'{'}
 """
 
 # FRONT
-undist_img = un_dist(FRONT, cv2.imread(f"./input/2_{img_name}.jpg"))
+undist_img = un_dist(FRONT, cv2.imread(f"./input/0_{img_name}.jpg"))
 ff = np.mean(undist_img)
 src_pts = np.array([[203, 271], [424, 274], [561, 319], [60, 315]])
 dst_pts = np.array([[382, 55], [680, 66], [682, 133], [382, 133]])
